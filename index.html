@@ -1,43 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>HuellaBot</title>
+  <meta charset="UTF-8" />
+  <title>HuellaBot 🌿</title>
   <style>
-    body { font-family: sans-serif; max-width: 400px; margin: auto; padding: 20px; }
-    #chat-log { height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-    input, button { padding: 10px; border-radius: 5px; border: 1px solid #aaa; }
-    button { background-color: #1A9A9A; color: white; border: none; cursor: pointer; }
+    body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+    #chat { background: white; padding: 20px; max-width: 500px; margin: auto; border-radius: 10px; }
+    .mensaje { margin: 10px 0; }
+    .usuario { font-weight: bold; color: #333; }
+    .bot { color: #008000; }
   </style>
 </head>
 <body>
-  <h2>HuellaBot 🌿</h2>
-  <div id="chat-log"></div>
-  <input id="chat-input" placeholder="Escribe tu duda sobre HuellaNet" style="width: 70%;" />
-  <button onclick="sendMessage()">Enviar</button>
+  <div id="chat">
+    <h2>HuellaBot 🌿</h2>
+    <div id="mensajes"></div>
+    <form id="formulario">
+      <input type="text" id="entrada" placeholder="Escribe algo..." style="width: 80%;" required />
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
 
   <script>
-    async function sendMessage() {
-      const input = document.getElementById("chat-input");
-      const message = input.value.trim();
-      if (!message) return;
+    const formulario = document.getElementById('formulario');
+    const entrada = document.getElementById('entrada');
+    const mensajes = document.getElementById('mensajes');
 
-      const chatLog = document.getElementById("chat-log");
-      chatLog.innerHTML += `<div><strong>Tú:</strong> ${message}</div>`;
-      input.value = "";
+    formulario.onsubmit = async (e) => {
+      e.preventDefault();
+      const texto = entrada.value.trim();
+      if (!texto) return;
+
+      mensajes.innerHTML += `<div class="mensaje usuario">Tú: ${texto}</div>`;
+      entrada.value = '';
 
       try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message })
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: texto })
         });
-        const data = await response.json();
-        chatLog.innerHTML += `<div><strong>HuellaBot:</strong> ${data.reply}</div>`;
-        chatLog.scrollTop = chatLog.scrollHeight;
-      } catch {
-        chatLog.innerHTML += `<div style="color:red;"><strong>Error:</strong> No se pudo contactar con HuellaBot.</div>`;
+        const data = await res.json();
+        mensajes.innerHTML += `<div class="mensaje bot">HuellaBot: ${data.reply}</div>`;
+      } catch (err) {
+        mensajes.innerHTML += `<div class="mensaje bot">HuellaBot: Error al contactar con el modelo.</div>`;
       }
-    }
+    };
   </script>
 </body>
 </html>
